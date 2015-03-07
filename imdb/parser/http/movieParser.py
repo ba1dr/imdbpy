@@ -172,6 +172,13 @@ class DOMHTMLMovieParser(DOMParserBase):
                                         path=".//text()",
                                         postprocess=analyze_title)),
 
+                Extractor(label='trailer',
+                        path="//a[contains(@href, '/video/imdb/')]",
+                        attrs=Attribute(key="trailer",
+                            multi=True,
+                            path="./@href",
+                            )),
+
                 Extractor(label='glossarysections',
                         group="//a[@class='glossary']",
                         group_key="./@name",
@@ -231,10 +238,10 @@ class DOMHTMLMovieParser(DOMParserBase):
                                 path="./h5[starts-with(text(), " \
                                         "'Language')]/..//text()",
                                     postprocess=makeSplitter('Language:')),
-                            Attribute(key='color info',
-                                path="./h5[starts-with(text(), " \
-                                        "'Color')]/..//text()",
-                                postprocess=makeSplitter('Color:')),
+                            # Attribute(key='color info',
+                            #     path="./h5[starts-with(text(), " \
+                            #             "'Color')]/..//text()",
+                            #     postprocess=makeSplitter('Color:')),
                             Attribute(key='sound mix',
                                 path="./h5[starts-with(text(), " \
                                         "'Sound Mix')]/..//text()",
@@ -525,6 +532,18 @@ class DOMHTMLMovieParser(DOMParserBase):
                 data['votes'] = int(votes)
             except (TypeError, ValueError):
                 pass
+        if 'trailer' in data:
+            if data['trailer']:
+        # xpath = self.xpath(dom, "//a[contains(@href, '/video/imdb/')]")
+        # if xpath:
+                m = re.search(r'vi(\d+)', data['trailer'][0])
+                if m:
+                    data['trailer'] = int(m.group(1))
+                else:
+                    del data['trailer']
+            else:
+                del data['trailer']
+
         return data
 
 
