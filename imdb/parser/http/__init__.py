@@ -64,12 +64,12 @@ except ImportError:
 class _ModuleProxy:
     """A proxy to instantiate and access parsers."""
     def __init__(self, module, defaultKeys=None, oldParsers=False,
-                useModule=None, fallBackToNew=False):
+                 useModule=None, fallBackToNew=False):
         """Initialize a proxy for the given module; defaultKeys, if set,
         muste be a dictionary of values to set for instanced objects."""
         if oldParsers or fallBackToNew:
-            _aux_logger.warn('The old set of parsers was removed; falling ' \
-                            'back to the new parsers.')
+            _aux_logger.warn('The old set of parsers was removed; falling '
+                             'back to the new parsers.')
         self.useModule = useModule
         if defaultKeys is None:
             defaultKeys = {}
@@ -244,15 +244,17 @@ class IMDbURLopener(FancyURLopener):
 
     def http_error_default(self, url, fp, errcode, errmsg, headers):
         if errcode == 404:
-            self._logger.warn('404 code returned for %s: %s (headers: %s)',
-                                url, errmsg, headers)
+            self._logger.warn('404 code returned for %s: %s',
+                              url, errmsg)
+            # self._logger.warn('404 code returned for %s: %s (headers: %s)',
+            #                   url, errmsg, headers)
             return _FakeURLOpener(url, headers)
         raise IMDbDataAccessError({'url': 'http:%s' % url,
-                                    'errcode': errcode,
-                                    'errmsg': errmsg,
-                                    'headers': headers,
-                                    'error type': 'http_error_default',
-                                    'proxy': self.get_proxy()})
+                                   'errcode': errcode,
+                                   'errmsg': errmsg,
+                                   'headers': headers,
+                                   'error type': 'http_error_default',
+                                   'proxy': self.get_proxy()})
 
     def open_unknown(self, fullurl, data=None):
         raise IMDbDataAccessError({'fullurl': fullurl,
@@ -755,6 +757,7 @@ class IMDbHTTPAccessSystem(IMDbBase):
         return self.pProxy.person_series_parser.parse(cont)
 
     def get_person_merchandising_links(self, personID):
+        return {}
         cont = self._retrieve(self.urls['person_main'] % personID + 'forsale')
         return self.pProxy.sales_parser.parse(cont)
 

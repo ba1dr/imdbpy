@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 """
 imdbpy2sql.py script.
 
@@ -371,7 +371,7 @@ class CSVCursor(object):
         self._counters = {}
 
     def buildLine(self, items, tableToAddID=False, rawValues=(),
-                    lobFD=None, lobFN=None):
+                  lobFD=None, lobFN=None):
         """Build a single text line for a set of information."""
         # FIXME: there are too many special cases to handle, and that
         #        affects performances: management of LOB files, at least,
@@ -450,8 +450,8 @@ class CSVCursor(object):
         buildLine = self.buildLine
         tableToAddID = False
         if tName in ('cast_info', 'movie_info', 'person_info',
-                    'movie_companies', 'movie_link', 'aka_name',
-                    'complete_cast', 'movie_info_idx', 'movie_keyword'):
+                     'movie_companies', 'movie_link', 'aka_name',
+                     'complete_cast', 'movie_info_idx', 'movie_keyword'):
             tableToAddID = tName
             if tName not in self._counters:
                 self._counters[tName] = 1
@@ -468,8 +468,8 @@ class CSVCursor(object):
                 rawValues.append((idx, item))
         # Write these lines.
         tFD.writelines(buildLine(i, tableToAddID=tableToAddID,
-                        rawValues=rawValues, lobFD=lobFD, lobFN=lobFN)
-                        for i in items)
+                       rawValues=rawValues, lobFD=lobFD, lobFN=lobFN)
+                       for i in items if not (tName == 'movie_link' and None in i))
         # Flush to disk, so that no truncaded entries are ever left.
         # XXX: is this a good idea?
         tFD.flush()
@@ -545,8 +545,8 @@ if CSV_DIR:
 try:
     OperationalError = conn.module.OperationalError
 except AttributeError, e:
-    warnings.warn('Unable to import OperationalError; report this as a bug, ' \
-            'since it will mask important exceptions: %s' % e)
+    warnings.warn('Unable to import OperationalError; report this as a bug, '
+                  'since it will mask important exceptions: %s' % e)
     OperationalError = Exception
 try:
     IntegrityError = conn.module.IntegrityError
@@ -555,6 +555,10 @@ except AttributeError, e:
     IntegrityError = Exception
 
 connectObject = conn.getConnection()
+
+# Manually set to False
+# connectObject.autocommit = False
+
 # XXX: fix for a problem that should be fixed in objectadapter.py (see it).
 if URI and URI.startswith('sqlite') and USED_ORM == 'sqlobject':
     major = sys.version_info[0]
@@ -2679,10 +2683,10 @@ def storeNotNULLimdbIDs(cls):
                 CURS.execute('SELECT * FROM %s LIMIT 1' % table_name)
             except Exception, e:
                 print 'missing "%s" table (ok if this is the first run)' % table_name
-                return
+                raise
             query = 'CREATE TEMPORARY TABLE %s_extract AS SELECT %s, %s FROM %s WHERE %s IS NOT NULL' % \
                     (table_name, md5sum_col, imdbID_col,
-                    table_name, imdbID_col)
+                     table_name, imdbID_col)
             CURS.execute(query)
             CURS.execute('CREATE INDEX %s_md5sum_idx ON %s_extract (%s)' % (table_name, table_name, md5sum_col))
             CURS.execute('CREATE INDEX %s_imdbid_idx ON %s_extract (%s)' % (table_name, table_name, imdbID_col))
@@ -2698,7 +2702,7 @@ def storeNotNULLimdbIDs(cls):
         return
     try:
         CURS.execute('SELECT %s, %s FROM %s WHERE %s IS NOT NULL' %
-                    (md5sum_col, imdbID_col, table_name, imdbID_col))
+                     (md5sum_col, imdbID_col, table_name, imdbID_col))
         res = CURS.fetchmany(10000)
         while res:
             db.update(dict((str(x[0]), str(x[1])) for x in res))
@@ -2745,17 +2749,17 @@ def restoreImdbIDs(cls):
             if DB_NAME == 'mysql':
                 query = 'UPDATE %s INNER JOIN %s_extract USING (%s) SET %s.%s = %s_extract.%s' % \
                         (table_name, table_name, md5sum_col,
-                        table_name, imdbID_col, table_name, imdbID_col)
+                         table_name, imdbID_col, table_name, imdbID_col)
             else:
                 query = 'UPDATE %s SET %s = %s_extract.%s FROM %s_extract WHERE %s.%s = %s_extract.%s' % \
                         (table_name, imdbID_col, table_name,
-                        imdbID_col, table_name, table_name,
-                        md5sum_col, table_name, md5sum_col)
+                         imdbID_col, table_name, table_name,
+                         md5sum_col, table_name, md5sum_col)
             CURS.execute(query)
             affected_rows = 'an unknown number of'
             try:
                 CURS.execute('SELECT COUNT(*) FROM %s WHERE %s IS NOT NULL' %
-                        (table_name, imdbID_col))
+                             (table_name, imdbID_col))
                 affected_rows = (CURS.fetchone() or [0])[0]
             except Exception, e:
                 pass
@@ -2774,8 +2778,8 @@ def restoreImdbIDs(cls):
         return
     count = 0
     sql = "UPDATE " + table_name + " SET " + imdbID_col + \
-            " = CASE " + md5sum_col + " %s END WHERE " + \
-            md5sum_col + " IN (%s)"
+          " = CASE " + md5sum_col + " %s END WHERE " + \
+          md5sum_col + " IN (%s)"
     def _restore(query, batch):
         """Execute a query to restore a batch of imdbIDs"""
         items = list(batch)

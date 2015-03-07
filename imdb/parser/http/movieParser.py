@@ -1825,10 +1825,10 @@ class DOMHTMLAiringParser(DOMParserBase):
         if len(data) == 0:
             return {}
         seriesTitle = data['series title']
-        seriesID = analyze_imdbid(data['series id'])
+        seriesID = analyze_imdbid(data.get('series id', None))
         if data.has_key('airing'):
             for airing in data['airing']:
-                title = airing.get('title', '').strip()
+                title = (airing.get('title', '') or '').strip()
                 if not title:
                     epsTitle = seriesTitle
                     if seriesID is None:
@@ -1841,7 +1841,8 @@ class DOMHTMLAiringParser(DOMParserBase):
                 e = Movie(title=epsTitle, movieID=epsID)
                 airing['episode'] = e
                 del airing['link']
-                del airing['title']
+                if 'title' in airing:
+                    del airing['title']
                 if not airing['season']:
                     del airing['season']
         if 'series title' in data:
