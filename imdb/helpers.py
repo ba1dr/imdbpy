@@ -551,7 +551,7 @@ def parseXML(xml):
     return None
 
 
-_re_akas_lang = re.compile('(?:[(])([a-zA-Z]+?)(?: title[)])')
+_re_akas_lang = re.compile(r'(?:^|\(|\:)\s?(\w+) title', re.I)
 _re_akas_country = re.compile('\(.*?\)')
 
 
@@ -567,9 +567,9 @@ def akasLanguages(movie, extract_year=False):
     lang_and_aka = []
     akas = set((movie.get('akas') or []) +
                (movie.get('akas from release info') or []))
-    for aka in akas:
+    for i_aka in akas:
         # split aka
-        aka = aka.encode('utf8').split('::')
+        aka = i_aka.encode('utf8').split('::')
         # sometimes there is no countries information
         if len(aka) == 2:
             # search for something like "(... title)" where ... is a language
