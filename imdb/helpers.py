@@ -52,6 +52,7 @@ from imdb.parser.http.bsouplxml.etree import BeautifulSoup
 # An URL, more or less.
 _re_href = re.compile(r'(http://.+?)(?=\s|$)', re.I)
 _re_hrefsub = _re_href.sub
+_re_aka = re.compile(r'^\"(.+)\"(?: \(([\d]+)\))?', re.I)
 
 
 def makeCgiPrintEncoding(encoding):
@@ -553,14 +554,19 @@ def parseXML(xml):
 _re_akas_lang = re.compile('(?:[(])([a-zA-Z]+?)(?: title[)])')
 _re_akas_country = re.compile('\(.*?\)')
 
+
 # akasLanguages, sortAKAsBySimilarity and getAKAsInLanguage code
-# copyright of Alberto Malagoli (refactoring by Davide Alberani).
-def akasLanguages(movie):
+# copyright of Alberto Malagoli (refactoring by Davide Alberani,
+#                                then by Alexey Kolyanov).
+def akasLanguages(movie, extract_year=False):
     """Given a movie, return a list of tuples in (lang, AKA) format;
-    lang can be None, if unable to detect."""
+    lang can be None, if unable to detect.
+    if extract_year argument is set to True - the returning value
+    will be (lang, short AKA, year), year could be None too.
+    """
     lang_and_aka = []
     akas = set((movie.get('akas') or []) +
-                (movie.get('akas from release info') or []))
+               (movie.get('akas from release info') or []))
     for aka in akas:
         # split aka
         aka = aka.encode('utf8').split('::')
@@ -579,7 +585,16 @@ def akasLanguages(movie):
                 language = COUNTRY_LANG.get(country)
         else:
             language = None
-        lang_and_aka.append((language, aka[0].decode('utf8')))
+        aka0 = aka[0].decode('utf8')
+        if extract_year:
+            year = None
+            m = _re_aka.match(aka0)
+            if m:
+                aka0 = m.group(1)
+                year = m.group(2)
+            lang_and_aka.append((language, aka0, year))
+        else:
+            lang_and_aka.append((language, aka0))
     return lang_and_aka
 
 
