@@ -1022,8 +1022,8 @@ class IMDbSqlAccessSystem(IMDbBase):
         if results > 0: new_res[:] = new_res[:results]
         return new_res
 
-    def _search_episode(self, title, results):
-        return self._search_movie(title, results, _episodes=True)
+    def _search_episode(self, title, results, exact=False):
+        return self._search_movie(title, results, _episodes=True, exact=exact)
 
     def get_movie_main(self, movieID):
         # Every movie information is retrieved from here.

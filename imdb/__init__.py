@@ -435,12 +435,12 @@ class IMDbBase:
         if not _episodes:
             res = self._search_movie(title, results, exact=exact)
         else:
-            res = self._search_episode(title, results)
+            res = self._search_episode(title, results, exact=exact)
         return [Movie.Movie(movieID=self._get_real_movieID(mi),
                 data=md, modFunct=self._defModFunct,
                 accessSystem=self.accessSystem) for mi, md in res][:results]
 
-    def _search_episode(self, title, results):
+    def _search_episode(self, title, results, exact=False):
         """Return a list of tuples (movieID, {movieData})"""
         # XXX: for the real implementation, see the method of the
         #      subclass, somewhere under the imdb.parser package.

@@ -488,21 +488,21 @@ class IMDbHTTPAccessSystem(IMDbBase):
         size = 131072 + results * 512
         return self._retrieve(self.urls['find'] % params, size=size)
 
-    def _search_movie(self, title, results):
+    def _search_movie(self, title, results, exact=False):
         # The URL of the query.
         # XXX: To retrieve the complete results list:
         #      params = urllib.urlencode({'more': 'tt', 'q': title})
         ##params = urllib.urlencode({'tt': 'on','mx': str(results),'q': title})
         ##params = 'q=%s&tt=on&mx=%s' % (quote_plus(title), str(results))
         ##cont = self._retrieve(imdbURL_find % params)
-        cont = self._get_search_content('tt', title, results)
+        cont = self._get_search_content('tt', title, results, exact=exact)
         return self.smProxy.search_movie_parser.parse(cont, results=results)['data']
 
-    def _search_episode(self, title, results):
+    def _search_episode(self, title, results, exact=False):
         t_dict = analyze_title(title)
         if t_dict['kind'] == 'episode':
             title = t_dict['title']
-        cont = self._get_search_content('ep', title, results)
+        cont = self._get_search_content('ep', title, results, exact=exact)
         return self.smProxy.search_movie_parser.parse(cont, results=results)['data']
 
     def get_movie_main(self, movieID):
