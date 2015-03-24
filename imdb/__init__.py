@@ -413,13 +413,13 @@ class IMDbBase:
 
     get_episode = get_movie
 
-    def _search_movie(self, title, results):
+    def _search_movie(self, title, results, exact=False):
         """Return a list of tuples (movieID, {movieData})"""
         # XXX: for the real implementation, see the method of the
         #      subclass, somewhere under the imdb.parser package.
         raise NotImplementedError('override this method')
 
-    def search_movie(self, title, results=None, _episodes=False):
+    def search_movie(self, title, results=None, _episodes=False, exact=False):
         """Return a list of Movie objects for a query for the given title.
         The results argument is the maximum number of results to return."""
         if results is None:
@@ -433,7 +433,7 @@ class IMDbBase:
         if not isinstance(title, unicode):
             title = unicode(title, encoding, 'replace')
         if not _episodes:
-            res = self._search_movie(title, results)
+            res = self._search_movie(title, results, exact=exact)
         else:
             res = self._search_episode(title, results)
         return [Movie.Movie(movieID=self._get_real_movieID(mi),
@@ -446,11 +446,11 @@ class IMDbBase:
         #      subclass, somewhere under the imdb.parser package.
         raise NotImplementedError('override this method')
 
-    def search_episode(self, title, results=None):
+    def search_episode(self, title, results=None, exact=False):
         """Return a list of Movie objects for a query for the given title.
         The results argument is the maximum number of results to return;
         this method searches only for titles of tv (mini) series' episodes."""
-        return self.search_movie(title, results=results, _episodes=True)
+        return self.search_movie(title, results=results, _episodes=True, exact=exact)
 
     def get_person(self, personID, info=Person.Person.default_info,
                     modFunct=None):

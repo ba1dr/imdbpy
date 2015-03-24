@@ -899,7 +899,7 @@ class IMDbSqlAccessSystem(IMDbBase):
         shown in the results of a search."""
         self.doAdult = doAdult
 
-    def _search_movie(self, title, results, _episodes=False):
+    def _search_movie(self, title, results, _episodes=False, exact=False):
         title = title.strip()
         if not title: return []
         title_dict = analyze_title(title, canonical=1)

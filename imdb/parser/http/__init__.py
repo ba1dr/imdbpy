@@ -258,15 +258,15 @@ class IMDbURLopener(FancyURLopener):
 
     def open_unknown(self, fullurl, data=None):
         raise IMDbDataAccessError({'fullurl': fullurl,
-                                    'data': str(data),
-                                    'error type': 'open_unknown',
-                                    'proxy': self.get_proxy()})
+                                   'data': str(data),
+                                   'error type': 'open_unknown',
+                                   'proxy': self.get_proxy()})
 
     def open_unknown_proxy(self, proxy, fullurl, data=None):
         raise IMDbDataAccessError({'proxy': str(proxy),
-                                    'fullurl': fullurl,
-                                    'error type': 'open_unknown_proxy',
-                                    'data': str(data)})
+                                   'fullurl': fullurl,
+                                   'error type': 'open_unknown_proxy',
+                                   'data': str(data)})
 
 
 class IMDbHTTPAccessSystem(IMDbBase):
@@ -276,11 +276,11 @@ class IMDbHTTPAccessSystem(IMDbBase):
     _http_logger = logging.getLogger('imdbpy.parser.http')
 
     def __init__(self, isThin=0, adultSearch=1, proxy=-1, oldParsers=False,
-                fallBackToNew=False, useModule=None, cookie_id=-1,
-                timeout=30, cookie_uu=None, *arguments, **keywords):
+                 fallBackToNew=False, useModule=None, cookie_id=-1,
+                 timeout=30, cookie_uu=None, *arguments, **keywords):
         """Initialize the access system."""
         IMDbBase.__init__(self, *arguments, **keywords)
-        self.urlOpener =  IMDbURLopener()
+        self.urlOpener = IMDbURLopener()
         # When isThin is set, we're parsing the "maindetails" page
         # of a movie (instead of the "combined" page) and movie/person
         # references are not collected if no defaultModFunct is provided.
@@ -291,7 +291,7 @@ class IMDbHTTPAccessSystem(IMDbBase):
         self._mdparse = False
         if isThin:
             self._http_logger.warn('"httpThin" access system no longer ' +
-                    'supported; "http" used automatically', exc_info=False)
+                                   'supported; "http" used automatically', exc_info=False)
             self.isThin = 0
             if self.accessSystem in ('httpThin', 'webThin', 'htmlThin'):
                 self.accessSystem = 'http'
@@ -319,26 +319,26 @@ class IMDbHTTPAccessSystem(IMDbBase):
                                     oldParsers=oldParsers, useModule=useModule,
                                     fallBackToNew=fallBackToNew)
         self.scompProxy = _ModuleProxy(searchCompanyParser, defaultKeys=_def,
-                                    oldParsers=oldParsers, useModule=useModule,
-                                    fallBackToNew=fallBackToNew)
+                                       oldParsers=oldParsers, useModule=useModule,
+                                       fallBackToNew=fallBackToNew)
         self.skProxy = _ModuleProxy(searchKeywordParser, defaultKeys=_def,
                                     oldParsers=oldParsers, useModule=useModule,
                                     fallBackToNew=fallBackToNew)
         self.mProxy = _ModuleProxy(movieParser, defaultKeys=_def,
-                                    oldParsers=oldParsers, useModule=useModule,
-                                    fallBackToNew=fallBackToNew)
+                                   oldParsers=oldParsers, useModule=useModule,
+                                   fallBackToNew=fallBackToNew)
         self.pProxy = _ModuleProxy(personParser, defaultKeys=_def,
-                                    oldParsers=oldParsers, useModule=useModule,
-                                    fallBackToNew=fallBackToNew)
+                                   oldParsers=oldParsers, useModule=useModule,
+                                   fallBackToNew=fallBackToNew)
         self.cProxy = _ModuleProxy(characterParser, defaultKeys=_def,
-                                    oldParsers=oldParsers, useModule=useModule,
-                                    fallBackToNew=fallBackToNew)
+                                   oldParsers=oldParsers, useModule=useModule,
+                                   fallBackToNew=fallBackToNew)
         self.compProxy = _ModuleProxy(companyParser, defaultKeys=_def,
-                                    oldParsers=oldParsers, useModule=useModule,
-                                    fallBackToNew=fallBackToNew)
+                                      oldParsers=oldParsers, useModule=useModule,
+                                      fallBackToNew=fallBackToNew)
         self.topBottomProxy = _ModuleProxy(topBottomParser, defaultKeys=_def,
-                                    oldParsers=oldParsers, useModule=useModule,
-                                    fallBackToNew=fallBackToNew)
+                                           oldParsers=oldParsers, useModule=useModule,
+                                           fallBackToNew=fallBackToNew)
 
     def _normalize_movieID(self, movieID):
         """Normalize the given movieID."""
@@ -360,7 +360,7 @@ class IMDbHTTPAccessSystem(IMDbBase):
             return '%07d' % int(characterID)
         except ValueError, e:
             raise IMDbParserError('invalid characterID "%s": %s' % \
-                    (characterID, e))
+                                  (characterID, e))
 
     def _normalize_companyID(self, companyID):
         """Normalize the given companyID."""
@@ -368,7 +368,7 @@ class IMDbHTTPAccessSystem(IMDbBase):
             return '%07d' % int(companyID)
         except ValueError, e:
             raise IMDbParserError('invalid companyID "%s": %s' % \
-                    (companyID, e))
+                                  (companyID, e))
 
     def get_imdbMovieID(self, movieID):
         """Translate a movieID in an imdbID; in this implementation
@@ -435,8 +435,8 @@ class IMDbHTTPAccessSystem(IMDbBase):
         or cookies.txt file."""
         if doAdult:
             self.set_cookies(cookie_id, cookie_uu)
-            #c_header = 'id=%s; uu=%s' % (cookie_id, cookie_uu)
-            #self.urlOpener.set_header('Cookie', c_header)
+            # c_header = 'id=%s; uu=%s' % (cookie_id, cookie_uu)
+            # self.urlOpener.set_header('Cookie', c_header)
         else:
             self.urlOpener.del_header('Cookie')
 
@@ -458,7 +458,7 @@ class IMDbHTTPAccessSystem(IMDbBase):
                 self.urlOpener.set_header('Cookie', _cookies)
         return ret
 
-    def _get_search_content(self, kind, ton, results):
+    def _get_search_content(self, kind, ton, results, exact=False):
         """Retrieve the web page for a given search.
         kind can be 'tt' (for titles), 'nm' (for names),
         'char' (for characters) or 'co' (for companies).
@@ -473,7 +473,8 @@ class IMDbHTTPAccessSystem(IMDbBase):
                 except Exception, e:
                     pass
         ##params = 'q=%s&%s=on&mx=%s' % (quote_plus(ton), kind, str(results))
-        params = 'q=%s&s=%s&mx=%s' % (quote_plus(ton), kind, str(results))
+        m_exact = "&exact=true" if exact else ""
+        params = 'q=%s&s=%s&mx=%s%s' % (quote_plus(ton), kind, str(results), m_exact)
         if kind == 'ep':
             params = params.replace('s=ep&', 's=tt&ttype=ep&', 1)
         cont = self._retrieve(self.urls['find'] % params)
@@ -531,12 +532,12 @@ class IMDbHTTPAccessSystem(IMDbBase):
     def get_movie_alternate_versions(self, movieID):
         cont = self._retrieve(self.urls['movie_main'] % movieID + 'alternateversions')
         return self.mProxy.alternateversions_parser.parse(cont,
-                                                        getRefs=self._getRefs)
+                                                          getRefs=self._getRefs)
 
     def get_movie_crazy_credits(self, movieID):
         cont = self._retrieve(self.urls['movie_main'] % movieID + 'crazycredits')
         return self.mProxy.crazycredits_parser.parse(cont,
-                                                    getRefs=self._getRefs)
+                                                     getRefs=self._getRefs)
 
     def get_movie_goofs(self, movieID):
         cont = self._retrieve(self.urls['movie_main'] % movieID + 'goofs')
