@@ -797,8 +797,8 @@ class IMDbHTTPAccessSystem(IMDbBase):
         return self.cProxy.character_quotes_parser.parse(cont,
                                                     getRefs=self._getRefs)
 
-    def _search_company(self, name, results):
-        cont = self._get_search_content('co', name, results)
+    def _search_company(self, name, results, exact=False):
+        cont = self._get_search_content('co', name, results, exact=exact)
         url = self.urlOpener._last_url
         return self.scompProxy.search_company_parser.parse(cont, url=url,
                                                     results=results)['data']

@@ -1476,7 +1476,7 @@ class IMDbSqlAccessSystem(IMDbBase):
     get_character_filmography = get_character_main
     get_character_biography = get_character_main
 
-    def _search_company(self, name, results):
+    def _search_company(self, name, results, exact=False):
         name = name.strip()
         if not name: return []
         if isinstance(name, unicode):

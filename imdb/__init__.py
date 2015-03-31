@@ -564,13 +564,13 @@ class IMDbBase:
         self.update(company, info)
         return company
 
-    def _search_company(self, name, results):
+    def _search_company(self, name, results, exact=False):
         """Return a list of tuples (companyID, {companyData})"""
         # XXX: for the real implementation, see the method of the
         #      subclass, somewhere under the imdb.parser package.
         raise NotImplementedError('override this method')
 
-    def search_company(self, name, results=None):
+    def search_company(self, name, results=None, exact=False):
         """Return a list of Company objects for a query for the given name.
 
         The results argument is the maximum number of results to return."""
@@ -582,7 +582,7 @@ class IMDbBase:
             results = 20
         if not isinstance(name, unicode):
             name = unicode(name, encoding, 'replace')
-        res = self._search_company(name, results)
+        res = self._search_company(name, results, exact=exact)
         return [Company.Company(companyID=self._get_real_companyID(pi),
                 data=pd, modFunct=self._defModFunct,
                 accessSystem=self.accessSystem) for pi, pd in res][:results]
